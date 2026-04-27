@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { Session, Campaign } = require('../models');
+const { authenticate, authorize } = require('../middleware/auth');
 
 router.get('/', authenticate, async (req, res, next) => {
   try {
