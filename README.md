@@ -25,6 +25,7 @@ This API helps Dungeon Masters and players organize campaigns, characters, and s
 - Error handling middleware
 - Sample seed data
 - Unit tests for core endpoints
+- Authentication and authorization using bearer token authentication
 
 ## Setup
 
@@ -273,6 +274,24 @@ Deletes a session.
   "message": "Campaign not found"
 }
 ```
+
+## Auth Endpoints
+
+### POST /auth/register
+Creates a new user. Example:
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+### POST /auth/login
+Authenticates a user and receives a token. Example:
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
 
 ## Folder Structure
 
