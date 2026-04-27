@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { Session, Campaign } = require('../models');
 
-router.get('/', async (req, res, next) => {
+router.get('/', authenticate, async (req, res, next) => {
   try {
     const sessions = await Session.findAll({
       include: [{ model: Campaign, as: 'campaign', attributes: ['id', 'name'] }],
@@ -14,7 +14,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', authenticate, async (req, res, next) => {
   try {
     const session = await Session.findByPk(req.params.id, {
       include: [{ model: Campaign, as: 'campaign', attributes: ['id', 'name'] }]
@@ -30,7 +30,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', authenticate, authorize('dm'), async (req, res, next) => {
   try {
     const { sessionDate, summary, nextSteps = '', campaignId } = req.body;
 
@@ -64,7 +64,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', authenticate, authorize('dm'), async (req, res, next) => {
   try {
     const session = await Session.findByPk(req.params.id);
 
@@ -98,7 +98,7 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', authenticate, authorize('dm'), async (req, res, next) => {
   try {
     const session = await Session.findByPk(req.params.id);
 

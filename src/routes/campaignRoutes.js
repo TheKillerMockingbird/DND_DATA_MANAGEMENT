@@ -1,7 +1,8 @@
+const { authenticate, authorize } = require('../middleware/auth');
 const router = require('express').Router();
 const { Campaign, Character, Session } = require('../models');
 
-router.get('/', async (req, res, next) => {
+router.get('/', authenticate, async (req, res, next) => {
   try {
     const campaigns = await Campaign.findAll({
       include: [
@@ -17,7 +18,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', authenticate, async (req, res, next) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id, {
       include: [
@@ -36,7 +37,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', authenticate, authorize('dm'), async (req, res, next) => {
   try {
     const { name, description = '', setting = '' } = req.body;
 
@@ -56,7 +57,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', authenticate, authorize('dm'), async (req, res, next) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id);
 
@@ -66,9 +67,15 @@ router.put('/:id', async (req, res, next) => {
 
     const { name, description, setting } = req.body;
 
-    if (name !== undefined && !name.trim()) {
+    if (name !== undefined) {
+      if (typeof name !== 'string') {
+      return res.status(400).json({ message: 'Campaign name must be a string' });
+      }
+
+      if (!name.trim()) {
       return res.status(400).json({ message: 'Campaign name cannot be empty' });
-    }
+      }
+}
 
     await campaign.update({
       name: name !== undefined ? name.trim() : campaign.name,
@@ -82,7 +89,7 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', authenticate, authorize('dm'), async (req, res, next) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id);
 
@@ -97,7 +104,7 @@ router.delete('/:id', async (req, res, next) => {
   }
 });
 
-router.get('/:id/characters', async (req, res, next) => {
+router.get('/:id/characters', authenticate, async (req, res, next) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id, {
       include: [{ model: Character, as: 'characters' }]
@@ -113,7 +120,7 @@ router.get('/:id/characters', async (req, res, next) => {
   }
 });
 
-router.get('/:id/sessions', async (req, res, next) => {
+router.get('/:id/sessions', authenticate, async (req, res, next) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id, {
       include: [{ model: Session, as: 'sessions' }]

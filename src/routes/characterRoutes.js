@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const { Character, Campaign } = require('../models');
+const { authenticate, authorize } = require('../middleware/auth');
 
-router.get('/', async (req, res, next) => {
+router.get('/', authenticate, async (req, res, next) => {
   try {
     const characters = await Character.findAll({
       include: [{ model: Campaign, as: 'campaign', attributes: ['id', 'name'] }],
@@ -14,7 +15,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', authenticate, async (req, res, next) => {
   try {
     const character = await Character.findByPk(req.params.id, {
       include: [{ model: Campaign, as: 'campaign', attributes: ['id', 'name'] }]
@@ -30,7 +31,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', authenticate, async (req, res, next) => {
   try {
     const { name, characterClass, race = '', level = 1, notes = '', campaignId } = req.body;
 
@@ -51,11 +52,19 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ message: 'Campaign not found' });
     }
 
+    const levelNum = Number(level);
+
+    if (!Number.isInteger(levelNum) || levelNum < 1) {
+      return res.status(400).json({
+        message: 'Level must be an integer greater than or equal to 1'
+      });
+    }
+
     const character = await Character.create({
       name: name.trim(),
       characterClass: characterClass.trim(),
       race,
-      level: Number(level),
+      level: levelNum,
       notes,
       campaignId
     });
@@ -66,7 +75,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', authenticate, async (req, res, next) => {
   try {
     const character = await Character.findByPk(req.params.id);
 
@@ -106,7 +115,7 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', authenticate, async (req, res, next) => {
   try {
     const character = await Character.findByPk(req.params.id);
 

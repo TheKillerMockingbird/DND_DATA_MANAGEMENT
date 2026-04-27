@@ -8,6 +8,8 @@ const { notFound, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
+const authRoutes = require('./routes/authRoutes');
+
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -20,6 +22,8 @@ app.get('/', (req, res) => {
 app.use('/campaigns', campaignRoutes);
 app.use('/characters', characterRoutes);
 app.use('/sessions', sessionRoutes);
+
+app.use('/auth', authRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

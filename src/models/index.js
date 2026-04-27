@@ -9,6 +9,9 @@ const Campaign = CampaignModel(sequelize, DataTypes);
 const Character = CharacterModel(sequelize, DataTypes);
 const Session = SessionModel(sequelize, DataTypes);
 
+const UserModel = require('./User');
+const User = UserModel(sequelize, DataTypes);
+
 Campaign.hasMany(Character, {
   foreignKey: 'campaignId',
   as: 'characters',
@@ -37,5 +40,6 @@ module.exports = {
   sequelize,
   Campaign,
   Character,
-  Session
+  Session,
+  User
 };
